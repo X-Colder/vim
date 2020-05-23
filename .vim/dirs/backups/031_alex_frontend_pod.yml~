@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alex-frontend-poc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alex-frontend-poc
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: alex-frontend-poc
+    spec:
+      containers:
+      - name: alex-frontend-pod-poc 
+        image: registry-vpc.cn-beijinog.aliyuncs.com/shangjian/alex_frontend:dev
+        resources:
+          requests:
+            memory: "200Mi"
+            cpu: "100m"
+          limits:
+            memory: "500Mi"
+        ports:
+        - containerPort: 30010
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 30010
+          initialDelaySeconds: 20
+          periodSeconds: 20 
+        env:
+        - name: TARGET
+          value: "http://alex-backend:30001"
+      restartPolicy: Always

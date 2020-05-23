@@ -1,0 +1,9 @@
+from celery import Celery
+import sys
+import celeryconfig
+
+app = Celery()
+
+app.config_from_object('celeryconfig')
+app.send_task("tasks.say", [sys.argv[1], sys.argv[2]])
+

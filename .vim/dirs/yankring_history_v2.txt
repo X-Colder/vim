@@ -1,0 +1,100 @@
+e,v
+l,v
+b,v
+a,v
+t,v
+u,v
+r,v
+T,v
+=,v
+s,v
+p,v
+ ,v
+,,v
+n,v
+i,v
+AMrcWPtVMrCcY0k3,v
+m,v
+_,v
+9,v
+3,v
+.,v
+5,v
+0,v
+4,v
+1,v
+S,v
+G,v
+N,v
+I,v
+E,v
+D,v
+K,v
+C,v
+A,v
+B,v
+L,v
+U,v
+R,v
+Y,v
+O,v
+H,v
+from datetime import timedelta,v
+k,v
+y,v
+c,v
+,V
+conn = MongoConn(),V
+7,v
+2,v
+    df.to_sql('reportdata201704', engine, if_exists='append')def getProfitData():    df = ts.get_profit_data(2017, 4)    engine = create_engine('mysql://root:dreamer2012@localhost/tushare_test?charset=utf8')    df.to_sql('profitdata201704', engine, if_exists='append')def getGrowthData():    df = ts.get_growth_data(2017, 4)    engine = create_engine('mysql://root:dreamer2012@localhost/tushare_test?charset=utf8')    df.to_sql('growthdata201704', engine, if_exists='append')def getCashFlow():    df = ts.get_cashflow_data(2017, 4)    engine = create_engine('mysql://root:dreamer2012@localhost/tushare_test?charset=utf8')    df.to_sql('cashflow201704', engine, if_exists='append')def getDebtPay():    df = ts.get_debtpaying_data(2017, 4)    engine = create_engine('mysql://root:dreamer2012@localhost/tushare_test?charset=utf8')    df.to_sql('debtpay201704', engine, if_exists='append')def getHs300():    df = ts.get_hs300s()    engine = create_engine('mysql://root:dreamer2012@localhost/tushare_test?charset=utf8')    df.to_sql('hs300', engine, if_exists='append')def getSz50():    df = ts.get_sz50s()    engine = create_engine('mysql://root:dreamer2012@localhost/tushare_test?charset=utf8')    df.to_sql('sz50', engine, if_exists='append')def getcodes():    codes = []    conn = pymysql.connect("localhost", user='root', password='dreamer2012', db='tushare_test')    cur = conn.cursor()    code = cur.execute("select code from basics;")    for item in cur.fetchall():        codes.append(item[0])    return codesdef getnames(code):    conn = pymysql.connect("localhost", user='root', password='dreamer2012', db='tushare_test')    cur = conn.cursor()    name = cur.execute("select name from basics where code = %s;" % code)    print(cur.fetchall()[0])def getCode():    client = pymongo.MongoClient('localhost', 27017)    db = client['stock']    coll = db['baseinfo']    res = coll.find_one()['data']    codes = []    for i in range(len(res)):        code = res[i]['code']        codes.append(code)    return codesdef getHisData(code):    conn = MongoConn()    df = ts.get_hist_data(code)    print(df)    conn.db['hisdata'].insert(json.loads(df.to_json(orient='table')))def realTimeData():    df = ts.get_realtime_quotes('002236')    print(df[['code', 'name', 'price', 'bid', 'ask', 'volume', 'amount', 'time']])    conn.db['realtime'].insert_many(json.loads(df.to_json(orient='records')))def hisTickData():    df = ts.get_tick_data('600516', date='2018-06-29')    conn.db['tickdata'].insert(json.loads(df.to_json(orient='table')))class MainHandler(tornado.web.RequestHandler):    def get(self):        self.write("Hello, world")application = tornado.web.Application([    (r"/", MainHandler),])if __name__ == "__main__":    #application.listen(8888)    #tornado.ioloop.IOLoop.instance().start()    # codes = getCode()    # for code in codes:    #     print code    #     getHisData(code)    #getHisData('603059')    realTimeData()        ,V
+    engine = create_engine('mysql://root:dreamer2012@localhost/tushare_test?charset=utf8'),V
+    df = ts.get_report_data(2017, 4),V
+def getReportData():,V
+    conn.db['baseinfo'].insert(json.loads(df.to_json(orient='table'))),V
+    #print df,V
+    df = ts.get_stock_basics(),V
+    conn = MongoConn(),V
+    #conn = pymongo.Connection('127.0.0.1', port=27017),V
+def getBasic():,V
+  def realTimeData():,V
+6,v
+8,v
+    test22(),V
+def realTimeData():136     df = ts.get_realtime_quotes('002236')137     print(df[['code', 'name', 'price', 'bid', 'ask', 'volume', 'amount', 'time']])138     conn.db['realtime'].insert_many(json.loads(df.to_json(orient='records'))),v
+# test1.pyfrom celery_task.celery import appdef test11():    print("test11----------------")def test22():    print("test22--------------")    test11()@app.taskdef celery_run():    test11()    test22()if __name__ == '__main__':    celery_run()------------------------------------------------------------# test2.pyfrom celery_task.celery import appdef test33():    print("test33----------------")    # print("------"*50)def test44():    print("test44--------------")    # print("------" * 50)    test33()@app.taskdef celery_run():    test33()    test44()if __name__ == '__main__':    celery_run(),V
+    test11(),V
+    print("test22--------------"),V
+def test22():,V
+    print("test11----------------"),V
+# test1.py,V
+    celery_run(),V
+if __name__ == '__main__':,V
+    test44(),V
+    test33(),V
+def celery_run():,V
+@app.task,V
+    # print("------" * 50),V
+    print("test44--------------"),V
+def test44():,V
+    # print("------"*50),V
+    print("test33----------------"),V
+def test33():,V
+from celery_task.celery import app,V
+# test2.py,V
+------------------------------------------------------------,V
+# coding:utf-8from __future__ import absolute_import # 拒绝隐式引入，因为celery.py的名字和celery的包名冲突，需要使用这条语句让程序正确地运行from celery import Celery# 创建celery应用对象app = Celery("celery_demo")# 导入celery的配置信息app.config_from_object("celery_task.celeryconfig"),V
+"schedule": crontab(minute=0, hour="*/1"),    # 每小时执行,V
+"schedule": crontab(minute="*/1"),   # 每分钟执行,V
+"schedule": crontab(minute="*/10",  # 每十分钟执行,V
+"schedule": crontab（）与crontab的语法基本一致,V
+    },,V
+        "args": (),V
+        "schedule": crontab(minute=0, hour="*/1"),   # every minute 每小时执行,V
+        "task": "celery_task.epp_scripts.test2.celery_run",,V
+    "test2": {,V
+    "celery_task.epp_scripts.test2",,V
+},V
+        "taskmeta_collection":"stock_taskmeta_collection",,V
+        "database":"jobs",,V
+        "port":27017,,V

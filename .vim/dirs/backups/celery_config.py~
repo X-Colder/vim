@@ -1,0 +1,13 @@
+CELERY_IMPORTS = ('tasks')
+CELERY_IGNORE_RESULT = False
+BROKER_HOST = '127.0.0.1'
+BROKER_PORT = 5672
+BROKER_URL = 'amqp://'
+#CELERY_RESULT_BACKEND = 'amqp'
+CELERY_RESULT_BACKEND = 'mongodb'
+CELERY_RESULT_BACKEND_SETTINGS = {
+        "host":"127.0.0.1",
+        "port":27017,
+        "database":"jobs",
+        "taskmeta_collection":"stock_taskmeta_collection",
+}

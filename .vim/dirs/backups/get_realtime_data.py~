@@ -1,0 +1,20 @@
+from stock_tasks.celery import app
+import tushare as ts
+import json
+from stock_tasks.database import MongoConn
+
+
+conn = MongoConn()
+
+def realtime_run():
+    df = ts.get_realtime_quotes('002236')
+    print(df[['code', 'name', 'price', 'bid', 'ask', 'volume', 'amount', 'time']])
+    conn.db['realtime'].insert_many(json.loads(df.to_json(orient='records')))
+    
+
+@app.task
+def main():
+    realtime_run()
+
+if __name__ == '__main__':
+    main()

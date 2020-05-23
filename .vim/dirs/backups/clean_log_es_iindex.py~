@@ -1,0 +1,73 @@
+#!/usr/bin/python3
+#-*- coding:utf-8 -*-
+
+import yaml
+import json
+import logging
+import argparse
+import requests
+import subprocess
+import datetime
+
+
+def get_file_arg_parser():
+    parser = argparse.ArgumentParser(description='read yaml config')
+    parser.add_argument('--configfile', '-f', required=True, help='A config file needed!')
+    return parser
+
+
+def read_yaml_config(file_path):
+    with open(file_path, "rb") as yaml_file:
+        config = yaml.safe_load(yaml_file.read())
+    return config
+
+
+def getDelIndexes(url, period, indextype):
+    cmd = "curl -XGET '%s'|awk '{if (NR > 3){print $3}}'|grep shangjian" % url
+    result = subprocess.getoutput(cmd)
+    indexes = result.split("\n")
+    now = datetime.date.today()
+    delta = datetime.timedelta(days=period)
+    pattern = now - delta
+    ymd = str(pattern).split("-")                   #获取到应该删除的索引的日志的年月日
+    year = ymd[0]
+    month = ymd[1]
+    day = ymd[2]
+    indexToDel = []
+    for index in indexes:
+        if indextype in index:                      #通过索引类型定位到需要删除的索引范围，这里通过索引前缀，可通过配置文件定义，默认为“shangjian-log”
+            t = index.split("-")[-1].split(".")     #['2019', '11', '08']
+            if t[0] < year:                         #今年、这个月之前的索引都加入待删除索引列表
+                indexToDel.append(index)
+            if t[1] < month:
+                indexToDel.append(index)
+            if t[2] < day:
+                indexToDel.append(index)
+    return indexToDel
+
+
+def delIndexes(indexes, url):
+    for index in indexes:
+        print(index)
+        cmd = "curl -X DELETE '%s/%s'" % (url, index)
+        result = subprocess.getoutput(cmd)
+        if str('{"acknowledged":true}')  in result:
+            print("Index %s has been deleted successfully!" % index)
+        else:
+            print("Index %s got an error when deleted, error is: %s" % (index, result))
+
+
+def main():
+    parser = get_file_arg_parser()
+    args = parser.parse_args()
+    config = read_yaml_config(args.configfile)
+    period = config["log_es_clean_handler"]["period"]
+    indextype = config["log_es_clean_handler"]["indextype"]
+    host = config["log_es_clean_handler"]["host"]
+    url = 'http://' + config["log_es_clean_handler"]["host"] + config["log_es_clean_handler"]["api"]
+    indexes = getDelIndexes(url, period, indextype)
+    delIndexes(indexes, host)
+
+
+if __name__ == '__main__':
+    main()
